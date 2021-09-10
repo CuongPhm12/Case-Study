@@ -7,6 +7,29 @@ const collisionCtx = collisionCanvas.getContext("2d");
 collisionCanvas.width = window.innerWidth;
 collisionCanvas.height = window.innerHeight;
 
+let music;
+function playMusic(){
+    music = new sound('ghost_choir.mp3');
+    music.play();
+}
+playMusic();
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function(){
+        this.sound.play();
+    }
+    this.stop = function(){
+        this.sound.pause();
+    }
+}
+
+
+
 let score = 0;
 let gameOver = false;
 ctx.font = '50px Impact';
@@ -18,9 +41,9 @@ let lastTime =0;
 let ravens = [];
 class Raven{
     constructor() {
-        this.spriteWidth = 271;
-        this.spriteHeight = 194;
-        this.sizeModifier = Math.random()*0.6+0.4
+        this.spriteWidth = 396;
+        this.spriteHeight = 582;
+        this.sizeModifier = Math.random()*0.3+0.2;
         this.width = this.spriteWidth*this.sizeModifier;
         this.height = this.spriteHeight*this.sizeModifier;
         this.x = canvas.width;
@@ -128,7 +151,7 @@ class Particle{
 function drawScore(){
     ctx.fillStyle = 'black';
     ctx.fillText("Score: " + score,50,75);
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'red';
     ctx.fillText("Score: " + score,55,80);
 }
 function drawGameOver(){
@@ -136,7 +159,7 @@ function drawGameOver(){
     ctx.fillStyle = 'black';
     ctx.fillText("GAME OVER, your Score is " + score,canvas.width/2,canvas.height/2);
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'red';
     ctx.fillText("GAME OVER, your Score is " + score,canvas.width/2+5,canvas.height/2+5);
 
 }
