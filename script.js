@@ -29,7 +29,6 @@ function sound(src) {
 }
 
 
-
 let score = 0;
 let gameOver = false;
 ctx.font = '50px Impact';
