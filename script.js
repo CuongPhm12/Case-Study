@@ -33,12 +33,12 @@ let score = 0;
 let gameOver = false;
 ctx.font = '50px Impact';
 
-let timeToNextRaven = 0;
-let ravenInterval = 500;
+let timeToNextGhost = 0;
+let ghostInterval = 500;
 let lastTime =0;
 
-let ravens = [];
-class Raven{
+let ghost = [];
+class Ghost{
     constructor() {
         this.spriteWidth = 396;
         this.spriteHeight = 582;
@@ -46,9 +46,9 @@ class Raven{
         this.width = this.spriteWidth*this.sizeModifier;
         this.height = this.spriteHeight*this.sizeModifier;
         this.x = canvas.width;
-        this.y = Math.random()*(canvas.height - this.height);
-        this.directionX = Math.random()*5 + 3;
-        this.directionY = Math.random()*5 - 2.5;
+        this.y = Math.random()*(canvas.height - this.height);//dont want any ghost to be partially hidden below bottom edge of screen
+        this.directionX = Math.random()*5 + 3;// speed between 3 and 8
+        this.directionY = Math.random()*5 - 2.5;// fly up and down minus 2.5 and plus 2.5
         this.markedForDeletion = false;
         this.image = new Image();
         this.image.src = 'raven.png';
@@ -60,12 +60,14 @@ class Raven{
         this.color = 'rgb(' + this.randomColors[0] + ',' + this.randomColors[1] + ','+ this.randomColors[2]+ ')';
         this.hasTrail = Math.random() >0.5;
     }
+
+    //
     update(deltatime){
-        if(this.y<0||this.y>canvas.height-this.height){
+        if(this.y<0||this.y>canvas.height-this.height){//ghost move back the screen when touch bottom
             this.directionY = this.directionY*-1;
         }
         this.x -= this.directionX;
-        this.y += this.directionY
+        this.y += this.directionY;//make ghost up and down
         if(this.x<0 - this.width) this.markedForDeletion = true;
         this.timeSinceFlap +=deltatime;
         if(this.timeSinceFlap>this.flapInterval){
@@ -80,7 +82,7 @@ class Raven{
             }
 
         }
-        if (this.x<0 - this.width) gameOver = true;
+        if (this.x<0 - this.width) gameOver = true;//game over condition
 
     }
     draw(){
@@ -166,7 +168,7 @@ window.addEventListener('click',function (e){
     const detectPixelColor = collisionCtx.getImageData(e.x,e.y,1,1);
     console.log(detectPixelColor);
     const pc = detectPixelColor.data;
-    ravens.forEach(object => {
+    ghost.forEach(object => {
         if(object.randomColors[0] === pc[0] && object.randomColors[1] === pc[1] && object.randomColors[2] === pc[2]){
             //collision detected
             object.markedForDeletion = true;
@@ -178,23 +180,25 @@ window.addEventListener('click',function (e){
 
 
 });
+
+//loop: run over and over updating and drawing game frame by frame
 function animate(timestamp){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     collisionCtx.clearRect(0,0,canvas.width,canvas.height);
     let deltatime = timestamp - lastTime;
     lastTime = timestamp;
-    timeToNextRaven+=deltatime;
-    if(timeToNextRaven>ravenInterval){
-        ravens.push(new Raven());
-        timeToNextRaven = 0;
-        ravens.sort(function (a,b) {
+    timeToNextGhost+=deltatime;
+    if(timeToNextGhost>ghostInterval){
+        ghost.push(new Ghost());
+        timeToNextGhost = 0;
+        ghost.sort(function (a,b) {
             return a.width - b.width;
         });
     };
     drawScore();
-    [...particles,...ravens,...explosions].forEach(object => object.update(deltatime));
-    [...particles,...ravens,...explosions].forEach(object => object.draw());
-    ravens = ravens.filter(object =>!object.markedForDeletion);
+    [...particles,...ghost,...explosions].forEach(object => object.update(deltatime));
+    [...particles,...ghost,...explosions].forEach(object => object.draw());
+    ghost = ghost.filter(object =>!object.markedForDeletion);
     explosions = explosions.filter(object =>!object.markedForDeletion);
     particles = particles.filter(object =>!object.markedForDeletion);
     if(!gameOver)requestAnimationFrame(animate);
